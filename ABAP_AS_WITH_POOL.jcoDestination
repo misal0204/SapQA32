@@ -1,0 +1,11 @@
+#Creación de archivo exitoso
+#Wed Feb 10 11:10:10 CST 2016
+jco.destination.pool_capacity=3
+jco.client.lang=ES
+jco.client.ashost=10.10.100.52
+jco.client.saprouter=/H/168.234.192.205/S/3299
+jco.client.user=jrecinos
+jco.destination.peak_limit=10
+jco.client.sysnr=00
+jco.client.passwd=Manager$15
+jco.client.client=241
