@@ -166,45 +166,90 @@ public class SapQA32 {
     public static void Bapi_qe02() throws JCoException {
         JCoDestination destination = JCoDestinationManager.getDestination(ABAP_AS_POOLED);
         //JCoFunction function = destination.getRepository().getFunction("BAPI_INSPOPER_GETCHAR");
-        JCoFunction function = destination.getRepository().getFunction("BAPI_INSPOPER_RECORDRESULTS");
+        JCoFunction function = destination.getRepository().getFunction("BAPI_INSPCHAR_GETRESULT");
         //JCoFunction function = destination.getRepository().getFunction("BAPI_INSPLOT_GETOPERATIONS");
         //JCoFunction function = destination.getRepository().getFunction("BAPI_INSPOPER_GETCHAR");
-        if (function == null) {
-            throw new RuntimeException("QEEM_GET_CHARACTERISTIC_DATA not found in SAP.");
-        }
 
         function.getImportParameterList().setValue("INSPLOT", "10000000522");
         function.getImportParameterList().setValue("INSPOPER", "0010");
-        function.getImportParameterList().setValue("INSPOPER", "0010");
-
+        function.getImportParameterList().setValue("INSPCHAR", "0010");
+        if (function == null) {
+            throw new RuntimeException("BAPI_INSPOPER_RECORDRESULTS not found in SAP.");
+        }
         try {
             function.execute(destination);
         } catch (AbapException e) {
             System.out.println(e.toString());
             return;
         }
-
         /*JCoStructure returnStructure = function.getExportParameterList().getStructure("RETURN");
          if (!(returnStructure.getString("TYPE").equals("") || returnStructure.getString("TYPE").equals("S"))) {
          throw new RuntimeException(returnStructure.getString("MESSAGE"));
          }*/
-        JCoTable codes = function.getTableParameterList().getTable("T_QAMKTAB");
-        int numrows;
-        if ((codes != null) && ((numrows = codes.getNumRows()) > 0)) {
-            System.out.println("Con valores");
 
-            for (int i = 0; i < codes.getNumRows(); i++) {
-                codes.setRow(i);
+        JCoStructure resultados = function.getExportParameterList().getStructure("CHAR_RESULT");
 
-                System.out.println("Caracteristica: " + codes.getString("MERKNR"));
-                System.out.println("Centro: " + codes.getString("QMTB_WERKS"));
-            }
-        } else {
-            System.out.println("Sin valores");
-        }
-        codes.firstRow();
+        String a = resultados.getString("INSPLOT");
+        String b = resultados.getString("EVALUATED");
+        String c = resultados.getString("EVALUATION");
+        String d = resultados.getString("REMARK");
+        System.out.println("lote de inspeccion: " + a);
+        System.out.println("evaluted: " + b);
+        System.out.println("evaluación: " + c);
+        System.out.println("descripcion: " + d);
+
+        /*       
+         JCoTable codes = function.getTableParameterList().getTable("SINGLE_RESULTS");
+         for (int i = 0; i < codes.getNumRows(); i++) {
+         codes.setRow(i);
+
+         System.out.println("lote de inspección: " + codes.getString("INSPLOT"));
+         System.out.println("operación: " + codes.getString("RES_VALUE"));
+         }
+         */
+        /*if ((codes != null) && ((numrows = codes.getNumRows()) > 0)) {
+         System.out.println("Con valores");
+
+         for (int i = 0; i < codes.getNumRows(); i++) {
+         codes.setRow(i);
+
+         System.out.println("Caracteristica: " + codes.getString("MERKNR"));
+         System.out.println("Centro: " + codes.getString("QMTB_WERKS"));
+         }
+         } else {
+         System.out.println("Sin valores");
+         }*/
+        //codes.firstRow();
     }
 
+        public static void Bapi_set() throws JCoException {
+        JCoDestination destination = JCoDestinationManager.getDestination(ABAP_AS_POOLED);
+        //JCoFunction function = destination.getRepository().getFunction("BAPI_INSPOPER_GETCHAR");
+        JCoFunction function = destination.getRepository().getFunction("BAPI_INSPCHAR_GETRESULT");
+        //JCoFunction function = destination.getRepository().getFunction("BAPI_INSPLOT_GETOPERATIONS");
+        //JCoFunction function = destination.getRepository().getFunction("BAPI_INSPOPER_GETCHAR");
+
+        function.getImportParameterList().setValue("INSPLOT", "10000000522");
+        function.getImportParameterList().setValue("INSPOPER", "0010");
+        function.getImportParameterList().setValue("INSPCHAR", "0010");
+        if (function == null) {
+            throw new RuntimeException("BAPI_INSPOPER_RECORDRESULTS not found in SAP.");
+        }
+        try {
+            function.execute(destination);
+        } catch (AbapException e) {
+            System.out.println(e.toString());
+            return;
+        }
+        /*JCoStructure returnStructure = function.getExportParameterList().getStructure("RETURN");
+         if (!(returnStructure.getString("TYPE").equals("") || returnStructure.getString("TYPE").equals("S"))) {
+         throw new RuntimeException(returnStructure.getString("MESSAGE"));
+         }*/
+
+        JCoStructure resultados = function.getImportParameterList().getStructure("CHAR_RESULT");
+
+        resultados.setValue("REMARK","Nuevo resultado de humedad");
+    }
     /**
      * @param args the command line arguments
      */
@@ -212,7 +257,8 @@ public class SapQA32 {
         try {
             exeFunctionCall();
             //step4WorkWithTable();
-            Bapi_qe02();
+            //Bapi_qe02();
+            Bapi_set();
         } catch (JCoException ex) {
             Logger.getLogger(SapQA32.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("Error en sap: " + ex.getMessage());
