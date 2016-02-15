@@ -6,6 +6,7 @@ import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoDestinationManager;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
+import com.sap.conn.jco.JCoParameterList;
 import com.sap.conn.jco.JCoStructure;
 import com.sap.conn.jco.JCoTable;
 import com.sap.conn.jco.ext.DestinationDataProvider;
@@ -28,8 +29,8 @@ public class SapQA32 {
     private final static String jco_asrouter = "/H/168.234.192.205/S/3299";
     private final static String jco_sysnr = "00";
     private final static String jco_client = "241";
-    private final static String jco_user = "nguzman";//molinosqm02 - //jrecinos - // nguzman
-    private final static String jco_passwd = "minimi10";//barreritas$00 - // Manager$15 - //minimi10
+    private final static String jco_user = "jrecinos";//molinosqm02 - //jrecinos - // nguzman
+    private final static String jco_passwd = "Manager$15";//barreritas$00 - // Manager$15 - //minimi10
     private final static String jco_lang = "ES";
     private final static String jco_pool_capacity = "3";
     private final static String jco_peak_limit = "10";
@@ -222,16 +223,13 @@ public class SapQA32 {
         //codes.firstRow();
     }
 
-        public static void Bapi_set() throws JCoException {
+    public static void Bapi_get() throws JCoException {
         JCoDestination destination = JCoDestinationManager.getDestination(ABAP_AS_POOLED);
-        //JCoFunction function = destination.getRepository().getFunction("BAPI_INSPOPER_GETCHAR");
         JCoFunction function = destination.getRepository().getFunction("BAPI_INSPCHAR_GETRESULT");
-        //JCoFunction function = destination.getRepository().getFunction("BAPI_INSPLOT_GETOPERATIONS");
-        //JCoFunction function = destination.getRepository().getFunction("BAPI_INSPOPER_GETCHAR");
 
         function.getImportParameterList().setValue("INSPLOT", "10000000522");
         function.getImportParameterList().setValue("INSPOPER", "0010");
-        function.getImportParameterList().setValue("INSPCHAR", "0010");
+        function.getImportParameterList().setValue("INSPCHAR", "0030");
         if (function == null) {
             throw new RuntimeException("BAPI_INSPOPER_RECORDRESULTS not found in SAP.");
         }
@@ -246,10 +244,105 @@ public class SapQA32 {
          throw new RuntimeException(returnStructure.getString("MESSAGE"));
          }*/
 
-        JCoStructure resultados = function.getImportParameterList().getStructure("CHAR_RESULT");
+        JCoStructure resultados = function.getExportParameterList().getStructure("CHAR_RESULT");
 
-        resultados.setValue("REMARK","Nuevo resultado de humedad");
+        System.out.println(resultados.getString("INSPLOT"));
+        //System.out.println(resultados.getString("MEAN_VALUE"));     //si son decimales (Datos cuatitativos)
+        //System.out.println(resultados.getString("ORIGINAL_INPUT")); // si son decimales (Datos cuantitativos)
+        //System.out.println(resultados.getString("CODE1")); // resultado cuando solo es texto (solo codigo)
+        //System.out.println(resultados.getString("CODE_GRP1"));// Texto breve cuando es texto
+        System.out.println(resultados.getString("VALID_VALS"));
+        System.out.println(resultados.getString("NONCONF"));
+        System.out.println(resultados.getString("CHAR_ATTR"));
+        System.out.println(resultados.getString("CHAR_INVAL"));
+        System.out.println(resultados.getString("EVALUATION"));
+        System.out.println(resultados.getString("EVALUATED"));
+        System.out.println(resultados.getString("START_DATE"));
+        System.out.println(resultados.getString("START_TIME"));
+        System.out.println(resultados.getString("INSPECTOR"));
+        System.out.println(resultados.getString("REMARK"));
+
     }
+
+    public static void Bapi_set() throws JCoException {
+        JCoDestination destination = JCoDestinationManager.getDestination(ABAP_AS_POOLED);
+        JCoFunction function = destination.getRepository().getFunction("BAPI_INSPCHAR_SETRESULT");
+
+        function.getImportParameterList().setValue("INSPLOT", "10000000522");
+        function.getImportParameterList().setValue("INSPOPER", "0020");
+        function.getImportParameterList().setValue("INSPCHAR", "0030");
+
+        if (function == null) {
+            throw new RuntimeException("BAPI_INSPCHAR_SETRESULT not found in SAP.");
+        }
+        JCoParameterList importParam = function.getImportParameterList();
+
+        JCoStructure structure = importParam.getStructure("CHAR_RESULT");
+
+        //structure.setValue("REMARK", "Resultados de hiumedad 123");
+        structure.setValue("CODE1", "0020");
+        structure.setValue("CODE_GRP1", "ESTRU01");
+
+        try {
+            function.execute(destination);
+        } catch (AbapException e) {
+            System.out.println(e.toString());
+        }
+    }
+
+    public static void Bapi_getstatus() throws JCoException {
+        JCoDestination destination = JCoDestinationManager.getDestination(ABAP_AS_POOLED);
+        JCoFunction function = destination.getRepository().getFunction("BAPI_INSPCHAR_GETREQUIREMENTS");
+
+        function.getImportParameterList().setValue("INSPLOT", "10000000522");
+        function.getImportParameterList().setValue("INSPOPER", "0010");
+        function.getImportParameterList().setValue("INSPCHAR", "0030");
+        if (function == null) {
+            throw new RuntimeException("BAPI_INSPCHAR_GETREQUIREMENTS not found in SAP.");
+        }
+        try {
+            function.execute(destination);
+        } catch (AbapException e) {
+            System.out.println(e.toString());
+            return;
+        }
+        JCoStructure resultados = function.getExportParameterList().getStructure("REQUIREMENTS");
+
+        String a = resultados.getString("INSPLOT");
+        String b = resultados.getString("STATUS");
+        String c = resultados.getString("CHAR_DESCR");
+        String d = resultados.getString("CONFIRM_NO");
+        System.out.println("lote de inspeccion: " + a);
+        System.out.println("estatus: " + b);
+        System.out.println("descripcion_char: " + c);
+        System.out.println("# confirmación: " + d);
+    }
+
+    public static void Bapi_setstatus() throws JCoException {
+        JCoDestination destination = JCoDestinationManager.getDestination(ABAP_AS_POOLED);
+        JCoFunction function = destination.getRepository().getFunction("BAPI_INSPCHAR_GETREQUIREMENTS");
+
+        function.getImportParameterList().setValue("INSPLOT", "10000000522");
+        function.getImportParameterList().setValue("INSPOPER", "0010");
+        function.getImportParameterList().setValue("INSPCHAR", "0030");
+        if (function == null) {
+            throw new RuntimeException("BAPI_INSPCHAR_GETREQUIREMENTS not found in SAP.");
+        }
+
+        JCoParameterList importParam = function.getImportParameterList();
+
+        JCoStructure structure = importParam.getStructure("INSPCHAR");
+
+        try {
+            function.execute(destination);
+        } catch (AbapException e) {
+            System.out.println(e.toString());
+        }
+
+        structure.setValue("STATUS", BigDecimal.valueOf(2));
+
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -258,7 +351,10 @@ public class SapQA32 {
             exeFunctionCall();
             //step4WorkWithTable();
             //Bapi_qe02();
-            Bapi_set();
+            //Bapi_get();
+            //Bapi_set();
+            //Bapi_getstatus();
+            Bapi_setstatus();
         } catch (JCoException ex) {
             Logger.getLogger(SapQA32.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("Error en sap: " + ex.getMessage());

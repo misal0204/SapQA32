@@ -51,3 +51,53 @@ COUNTER     2
 Error:  >Fri Feb 12 14:31:26,506<    >RfcGetException rc (7) message: The function module "QEEM_GET_CHARACTERISTIC_DATA" cannot be used for 'remote' calls.
 <RfcGetException
 
+
+**** Error file opened at 20160215 082203 Central Standard Time Rel 3.0.9 (2012-07-19) [720.310]
+Error:  >Mon Feb 15 08:22:03,477<    RfcException: [null]
+    message: Connect to SAP gateway failed
+Connection parameters: TYPE=A DEST=ABAP_AS_WITH_POOL ASHOST=10.10.100.52 SYSNR=00 SAPROUTER=/H/168.234.192.205/S/3299 PCS=1
+
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '168.234.192.205:3299' not reached
+TIME        Mon Feb 15 08:22:03 2016
+RELEASE     720
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3286
+DETAIL      NiPConnect2: 168.234.192.205:3299
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+    Return code: RFC_FAILURE(1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+
+
+**** Error file opened at 20160215 162019 Central Standard Time Rel 3.0.9 (2012-07-19) [720.310]
+Error:  >Mon Feb 15 16:20:19,287<    RfcException: [null]
+    message: Connect to SAP gateway failed
+Connection parameters: TYPE=A DEST=ABAP_AS_WITH_POOL ASHOST=10.10.100.52 SYSNR=00 SAPROUTER=/H/168.234.192.205/S/3299 PCS=1
+
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '168.234.192.205:3299' not reached
+TIME        Mon Feb 15 16:20:19 2016
+RELEASE     720
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3286
+DETAIL      NiPConnect2: 168.234.192.205:3299
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+    Return code: RFC_FAILURE(1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+
