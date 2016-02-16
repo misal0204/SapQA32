@@ -1,7 +1,6 @@
 package sapqa32;
 
 import com.sap.conn.jco.AbapException;
-import com.sap.conn.jco.JCo;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoDestinationManager;
 import com.sap.conn.jco.JCoException;
@@ -13,7 +12,6 @@ import com.sap.conn.jco.ext.DestinationDataProvider;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -229,7 +227,7 @@ public class SapQA32 {
 
         function.getImportParameterList().setValue("INSPLOT", "10000000522");
         function.getImportParameterList().setValue("INSPOPER", "0010");
-        function.getImportParameterList().setValue("INSPCHAR", "0030");
+        function.getImportParameterList().setValue("INSPCHAR", "0020");
         if (function == null) {
             throw new RuntimeException("BAPI_INSPOPER_RECORDRESULTS not found in SAP.");
         }
@@ -247,16 +245,14 @@ public class SapQA32 {
         JCoStructure resultados = function.getExportParameterList().getStructure("CHAR_RESULT");
 
         System.out.println(resultados.getString("INSPLOT"));
-        //System.out.println(resultados.getString("MEAN_VALUE"));     //si son decimales (Datos cuatitativos)
-        //System.out.println(resultados.getString("ORIGINAL_INPUT")); // si son decimales (Datos cuantitativos)
-        //System.out.println(resultados.getString("CODE1")); // resultado cuando solo es texto (solo codigo)
-        //System.out.println(resultados.getString("CODE_GRP1"));// Texto breve cuando es texto
-        System.out.println(resultados.getString("VALID_VALS"));
-        System.out.println(resultados.getString("NONCONF"));
-        System.out.println(resultados.getString("CHAR_ATTR"));
-        System.out.println(resultados.getString("CHAR_INVAL"));
-        System.out.println(resultados.getString("EVALUATION"));
-        System.out.println(resultados.getString("EVALUATED"));
+        System.out.println(resultados.getString("MEAN_VALUE"));     //si son decimales (Datos cuatitativos)
+        System.out.println(resultados.getString("ORIGINAL_INPUT")); // si son decimales (Datos cuantitativos)
+        System.out.println(resultados.getString("CODE1")); // resultado cuando solo es texto (solo codigo)
+        System.out.println(resultados.getString("CODE_GRP1"));// Texto breve cuando es texto
+        System.out.println("Cerrado: "+resultados.getString("CLOSED")); //X
+        System.out.println("No valido: "+resultados.getString("CHAR_INVAL"));
+        System.out.println("Resultado: "+resultados.getString("EVALUATION")); // A
+        System.out.println("Valoración: "+resultados.getString("EVALUATED")); // X
         System.out.println(resultados.getString("START_DATE"));
         System.out.println(resultados.getString("START_TIME"));
         System.out.println(resultados.getString("INSPECTOR"));
@@ -269,20 +265,20 @@ public class SapQA32 {
         JCoFunction function = destination.getRepository().getFunction("BAPI_INSPCHAR_SETRESULT");
 
         function.getImportParameterList().setValue("INSPLOT", "10000000522");
-        function.getImportParameterList().setValue("INSPOPER", "0020");
-        function.getImportParameterList().setValue("INSPCHAR", "0030");
-
+        function.getImportParameterList().setValue("INSPOPER", "0010");
+        function.getImportParameterList().setValue("INSPCHAR", "0010");
         if (function == null) {
             throw new RuntimeException("BAPI_INSPCHAR_SETRESULT not found in SAP.");
         }
+        
         JCoParameterList importParam = function.getImportParameterList();
-
         JCoStructure structure = importParam.getStructure("CHAR_RESULT");
 
         //structure.setValue("REMARK", "Resultados de hiumedad 123");
-        structure.setValue("CODE1", "0020");
-        structure.setValue("CODE_GRP1", "ESTRU01");
-
+        //structure.setValue("MEAN_VALUE", "0.45");
+        structure.setValue("CLOSED", "");
+        structure.setValue("EVALUATION", "");
+        structure.setValue("EVALUATED", "");
         try {
             function.execute(destination);
         } catch (AbapException e) {
@@ -330,16 +326,14 @@ public class SapQA32 {
         }
 
         JCoParameterList importParam = function.getImportParameterList();
-
         JCoStructure structure = importParam.getStructure("INSPCHAR");
-
+        structure.setValue("STATUS", 2);
+        
         try {
             function.execute(destination);
         } catch (AbapException e) {
             System.out.println(e.toString());
         }
-
-        structure.setValue("STATUS", BigDecimal.valueOf(2));
 
     }
 
@@ -352,9 +346,9 @@ public class SapQA32 {
             //step4WorkWithTable();
             //Bapi_qe02();
             //Bapi_get();
-            //Bapi_set();
+            Bapi_set();
             //Bapi_getstatus();
-            Bapi_setstatus();
+            //Bapi_setstatus();
         } catch (JCoException ex) {
             Logger.getLogger(SapQA32.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("Error en sap: " + ex.getMessage());
